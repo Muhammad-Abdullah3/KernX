@@ -1,5 +1,6 @@
 package kernx.os.manager;
 import java.util.*;
+import java.util.function.Consumer;
 
 import kernx.os.data.PCB;
 import kernx.os.data.ProcessState;
@@ -9,6 +10,18 @@ import kernx.os.scheduler.RoundRobinScheduler;
 import kernx.os.scheduler.Scheduler;
 
 public class ProcessManager {
+
+    private Consumer<String> messageListener;
+
+    public void setMessageListener(Consumer<String> messageListener) {
+        this.messageListener = messageListener;
+    }
+
+    private void notify(String message) {
+        if (messageListener != null) {
+            messageListener.accept(message);
+        }
+    }
 
     /* =======================
        PROCESS STORAGE
@@ -25,6 +38,7 @@ public class ProcessManager {
     private final Queue<PCB> suspendedQueue = new LinkedList<>();
 
     private PCB runningProcess;
+    private int systemTime = 0;
 
     /* =======================
        SCHEDULER COMPONENTS
@@ -38,12 +52,20 @@ public class ProcessManager {
        (Long-term scheduling)
        ======================= */
 
+    // Original method retained for compatibility
     public void createProcess(String owner, int memoryRequirement, int priority) {
-        PCB pcb = new PCB(owner, memoryRequirement, priority);
-        pcb.setState(ProcessState.READY);
+        createProcess(owner, memoryRequirement, priority, 0, 0);
+    }
 
+    // New overload accepting burst time and arrival time
+    public void createProcess(String owner, int memoryRequirement, int priority, int burstTime, int arrivalOffset) {
+        // Arrival time is calculated relative to current systemTime
+        int absoluteArrival = systemTime + Math.max(0, arrivalOffset);
+        
+        PCB pcb = new PCB(owner, memoryRequirement, priority, burstTime, absoluteArrival);
+        pcb.setState(ProcessState.NEW);
         processList.add(pcb);
-        readyQueue.add(pcb);
+        notify("Created Process PID: " + pcb.getPid() + " (Arriving at: " + absoluteArrival + ")");
     }
 
     /* =======================
@@ -64,6 +86,7 @@ public class ProcessManager {
         }
 
         processList.remove(pcb);
+        notify("Destroyed Process PID: " + pid);
     }
 
     /* =======================
@@ -109,6 +132,7 @@ public class ProcessManager {
         runningProcess = null;
 
         dispatchNextProcess();
+        notify("Blocked Process PID: " + pid);
     }
 
     public void wakeupProcess(int pid) {
@@ -117,6 +141,7 @@ public class ProcessManager {
 
         pcb.setState(ProcessState.READY);
         readyQueue.add(pcb);
+        notify("Woke up Process PID: " + pid);
     }
 
     /* =======================
@@ -138,6 +163,7 @@ public class ProcessManager {
 
         pcb.setState(ProcessState.SUSPENDED);
         suspendedQueue.add(pcb);
+        notify("Suspended Process PID: " + pid);
     }
 
     public void resumeProcess(int pid) {
@@ -146,6 +172,7 @@ public class ProcessManager {
 
         pcb.setState(ProcessState.READY);
         readyQueue.add(pcb);
+        notify("Resumed Process PID: " + pid);
     }
 
     /* =======================
@@ -165,6 +192,14 @@ public class ProcessManager {
 
     public void setScheduler(Scheduler scheduler) {
         this.scheduler = scheduler;
+    }
+
+    public void useFCFS() {
+        this.scheduler = new FCFSScheduler();
+    }
+
+    public void useRoundRobin(int quantum) {
+        this.scheduler = new RoundRobinScheduler(quantum);
     }
 
     public Scheduler getScheduler() {
@@ -195,6 +230,10 @@ public class ProcessManager {
         return runningProcess;
     }
 
+    public int getSystemTime() {
+        return systemTime;
+    }
+
     /* =======================
        INTERNAL UTIL
        ======================= */
@@ -207,8 +246,21 @@ public class ProcessManager {
         }
         return null;
     }
+    private void checkArrivals() {
+        for (PCB pcb : processList) {
+            if (pcb.getState() == ProcessState.NEW && pcb.getArrivalTime() <= systemTime) {
+                pcb.setState(ProcessState.READY);
+                readyQueue.add(pcb);
+                notify("Process PID: " + pcb.getPid() + " Arrived at time " + systemTime);
+            }
+        }
+    }
+
     // Cpu ticking
     public void tick() {
+        systemTime++;
+        checkArrivals();
+
         if (runningProcess == null) {
             dispatchNextProcess();
             return;
@@ -219,7 +271,9 @@ public class ProcessManager {
 
         // Process finished
         if (runningProcess.getRemainingBurstTime() <= 0) {
+            notify("Process PID: " + runningProcess.getPid() + " Finished");
             runningProcess.setState(ProcessState.TERMINATED);
+            runningProcess.setCompletionTime(systemTime);
             runningProcess = null;
             dispatchNextProcess();
             return;

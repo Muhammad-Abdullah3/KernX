@@ -1,36 +1,42 @@
 package kernx.ui;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import kernx.ui.panels.*;
+
+import kernx.ui.utils.UITheme;
 
 public class MainFrame extends JFrame {
 
     public MainFrame() {
         super("KernXOS - Control Panel");
 
-        // Linux styled dark theme (simple custom colors)
-        UIManager.put("Panel.background", new Color(45, 45, 45));
-        UIManager.put("Button.background", new Color(60, 60, 60));
-        UIManager.put("Button.foreground", Color.WHITE);
-        UIManager.put("Label.foreground", Color.WHITE);
+        UITheme.applyGlobalTheme();
 
-        setLayout(new BorderLayout());
+        getContentPane().setBackground(UITheme.BACKGROUND);
+        setLayout(new BorderLayout(20, 20));
+
+        JPanel header = new JPanel(new BorderLayout());
+        header.setOpaque(false);
+        header.setBorder(new EmptyBorder(30, 0, 10, 0));
 
         JLabel title = new JLabel("KernXOS Control Panel", SwingConstants.CENTER);
-        title.setFont(new Font("Consolas", Font.BOLD, 22));
-        title.setForeground(Color.GREEN);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        title.setForeground(UITheme.ACCENT);
+        header.add(title, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(5, 1, 10, 10));
+        buttonPanel.setOpaque(false);
+        buttonPanel.setLayout(new GridLayout(5, 1, 15, 15));
+        buttonPanel.setBorder(new EmptyBorder(20, 50, 50, 50));
 
-        JButton processBtn = new JButton("Process Management");
-        JButton memoryBtn = new JButton("Memory Management");
-        JButton ioBtn = new JButton("I/O Management");
-        JButton otherBtn = new JButton("Other Operations");
-        JButton configBtn = new JButton("Configuration");
+        JButton processBtn = UITheme.createStyledButton("Process Management");
+        JButton memoryBtn = UITheme.createStyledButton("Memory Management");
+        JButton ioBtn = UITheme.createStyledButton("I/O Management");
+        JButton otherBtn = UITheme.createStyledButton("Other Operations");
+        JButton configBtn = UITheme.createStyledButton("Configuration");
 
-        // Add action listeners to open different panels
         processBtn.addActionListener(e -> openPanel(new ProcessManagementPanel()));
         memoryBtn.addActionListener(e -> openPanel(new MemoryManagementPanel()));
         ioBtn.addActionListener(e -> openPanel(new IOManagementPanel()));
@@ -43,10 +49,10 @@ public class MainFrame extends JFrame {
         buttonPanel.add(otherBtn);
         buttonPanel.add(configBtn);
 
-        add(title, BorderLayout.NORTH);
+        add(header, BorderLayout.NORTH);
         add(buttonPanel, BorderLayout.CENTER);
 
-        setSize(400, 500);
+        setSize(500, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);

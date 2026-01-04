@@ -1,21 +1,38 @@
 package kernx.ui.dialogs;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import kernx.ui.utils.UITheme;
 
 public class ProcessCommunicationDialog extends JDialog {
 
     public ProcessCommunicationDialog() {
         setTitle("Process Communication");
         setModal(true);
+        getContentPane().setBackground(UITheme.BACKGROUND);
+        setLayout(new BorderLayout());
 
-        add(new JLabel("IPC will be implemented in Phase-4"));
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(UITheme.BACKGROUND);
+        mainPanel.setBorder(new EmptyBorder(30, 30, 30, 30));
 
-        JButton ok = new JButton("OK");
-        ok.addActionListener(e -> dispose());
-        add(ok);
+        JLabel info = new JLabel("IPC will be implemented in Phase-4", SwingConstants.CENTER);
+        info.setForeground(UITheme.TEXT_SECONDARY);
+        mainPanel.add(info, BorderLayout.CENTER);
 
-        setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
-        setSize(300, 150);
+        JButton okBtn = UITheme.createStyledButton("OK");
+        okBtn.addActionListener(e -> dispose());
+        
+        JPanel btnPanel = new JPanel();
+        btnPanel.setBackground(UITheme.BACKGROUND);
+        btnPanel.add(okBtn);
+
+        add(mainPanel, BorderLayout.CENTER);
+        add(btnPanel, BorderLayout.SOUTH);
+
+        pack();
+        setSize(350, 180);
         setLocationRelativeTo(null);
         setVisible(true);
     }

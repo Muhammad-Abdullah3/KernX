@@ -8,6 +8,7 @@ public class Dispatcher {
     public void dispatch(PCB pcb) {
         pcb.setState(ProcessState.RUNNING);
         pcb.setAssignedProcessor("CPU-0");
+        pcb.resetQuantum();
     }
 
     public void preempt(PCB pcb) {
