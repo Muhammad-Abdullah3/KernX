@@ -1,4 +1,9 @@
 package kernx.ui.panels;
 
-public class OtherOperationsPanel {
+import javax.swing.*;
+
+public class OtherOperationsPanel extends JPanel {
+    public OtherOperationsPanel() {
+        add(new JLabel("Other Kernel Operations"));
+    }
 }

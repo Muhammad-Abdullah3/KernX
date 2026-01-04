@@ -1,4 +1,9 @@
 package kernx.ui.panels;
 
-public class IOManagementPanel {
+import javax.swing.*;
+
+public class IOManagementPanel extends JPanel {
+    public IOManagementPanel() {
+        add(new JLabel("I/O Management - Coming Soon"));
+    }
 }

@@ -1,87 +1,244 @@
-package kernx.os;
-
-import kernx.os.data.*;
+package kernx.os.manager;
 import java.util.*;
+
+import kernx.os.data.PCB;
+import kernx.os.data.ProcessState;
+import kernx.os.scheduler.Dispatcher;
+import kernx.os.scheduler.FCFSScheduler;
+import kernx.os.scheduler.RoundRobinScheduler;
+import kernx.os.scheduler.Scheduler;
 
 public class ProcessManager {
 
-    private final Map<Integer, PCB> processTable;
+    /* =======================
+       PROCESS STORAGE
+       ======================= */
 
-    public ProcessManager() {
-        processTable = new HashMap<>();
-    }
+    private final List<PCB> processList = new ArrayList<>();
 
-    // CREATE
-    public PCB createProcess(String owner, int memory, int priority) {
-        PCB pcb = new PCB(owner, memory, priority);
+    /* =======================
+       QUEUES (Scheduling)
+       ======================= */
+
+    private final Queue<PCB> readyQueue = new LinkedList<>();
+    private final Queue<PCB> blockedQueue = new LinkedList<>();
+    private final Queue<PCB> suspendedQueue = new LinkedList<>();
+
+    private PCB runningProcess;
+
+    /* =======================
+       SCHEDULER COMPONENTS
+       ======================= */
+
+    private Scheduler scheduler = new FCFSScheduler();
+    private final Dispatcher dispatcher = new Dispatcher();
+
+    /* =======================
+       PROCESS CREATION
+       (Long-term scheduling)
+       ======================= */
+
+    public void createProcess(String owner, int memoryRequirement, int priority) {
+        PCB pcb = new PCB(owner, memoryRequirement, priority);
         pcb.setState(ProcessState.READY);
-        processTable.put(pcb.getPid(), pcb);
-        return pcb;
+
+        processList.add(pcb);
+        readyQueue.add(pcb);
     }
 
-    // DESTROY
+    /* =======================
+       PROCESS DESTRUCTION
+       ======================= */
+
     public void destroyProcess(int pid) {
-        PCB pcb = processTable.remove(pid);
-        if (pcb != null) {
-            pcb.setState(ProcessState.TERMINATED);
+        PCB pcb = findByPid(pid);
+        if (pcb == null) return;
+
+        readyQueue.remove(pcb);
+        blockedQueue.remove(pcb);
+        suspendedQueue.remove(pcb);
+
+        if (pcb == runningProcess) {
+            runningProcess = null;
+            dispatchNextProcess();
+        }
+
+        processList.remove(pcb);
+    }
+
+    /* =======================
+       DISPATCHING
+       (Short-term scheduling)
+       ======================= */
+
+    public void dispatchNextProcess() {
+        if (runningProcess != null) return;
+
+        PCB next = scheduler.selectNextProcess(readyQueue);
+        if (next != null) {
+            runningProcess = next;
+            dispatcher.dispatch(next);
         }
     }
 
-    // SUSPEND
-    public void suspendProcess(int pid) {
-        PCB pcb = processTable.get(pid);
-        if (pcb != null) {
-            pcb.setState(ProcessState.SUSPENDED);
-        }
-    }
-
-    // RESUME
-    public void resumeProcess(int pid) {
-        PCB pcb = processTable.get(pid);
-        if (pcb != null) {
-            pcb.setState(ProcessState.READY);
-        }
-    }
-
-    // BLOCK
-    public void blockProcess(int pid) {
-        PCB pcb = processTable.get(pid);
-        if (pcb != null) {
-            pcb.setState(ProcessState.BLOCKED);
-        }
-    }
-
-    // WAKEUP
-    public void wakeupProcess(int pid) {
-        PCB pcb = processTable.get(pid);
-        if (pcb != null) {
-            pcb.setState(ProcessState.READY);
-        }
-    }
-
-    // DISPATCH
     public void dispatchProcess(int pid) {
-        for (PCB p : processTable.values()) {
-            if (p.getState() == ProcessState.RUNNING) {
-                p.setState(ProcessState.READY);
-            }
+        PCB pcb = findByPid(pid);
+        if (pcb == null || pcb.getState() != ProcessState.READY) return;
+
+        readyQueue.remove(pcb);
+
+        if (runningProcess != null) {
+            dispatcher.preempt(runningProcess);
+            readyQueue.add(runningProcess);
         }
-        PCB pcb = processTable.get(pid);
-        if (pcb != null) {
-            pcb.setState(ProcessState.RUNNING);
-        }
+
+        runningProcess = pcb;
+        dispatcher.dispatch(pcb);
     }
 
-    // CHANGE PRIORITY
+    /* =======================
+       BLOCK / WAKEUP
+       ======================= */
+
+    public void blockProcess(int pid) {
+        PCB pcb = findByPid(pid);
+        if (pcb == null || pcb != runningProcess) return;
+
+        pcb.setState(ProcessState.BLOCKED);
+        blockedQueue.add(pcb);
+        runningProcess = null;
+
+        dispatchNextProcess();
+    }
+
+    public void wakeupProcess(int pid) {
+        PCB pcb = findByPid(pid);
+        if (pcb == null || !blockedQueue.remove(pcb)) return;
+
+        pcb.setState(ProcessState.READY);
+        readyQueue.add(pcb);
+    }
+
+    /* =======================
+       SUSPEND / RESUME
+       (Medium-term scheduling)
+       ======================= */
+
+    public void suspendProcess(int pid) {
+        PCB pcb = findByPid(pid);
+        if (pcb == null) return;
+
+        if (pcb == runningProcess) {
+            runningProcess = null;
+            dispatchNextProcess();
+        }
+
+        readyQueue.remove(pcb);
+        blockedQueue.remove(pcb);
+
+        pcb.setState(ProcessState.SUSPENDED);
+        suspendedQueue.add(pcb);
+    }
+
+    public void resumeProcess(int pid) {
+        PCB pcb = findByPid(pid);
+        if (pcb == null || !suspendedQueue.remove(pcb)) return;
+
+        pcb.setState(ProcessState.READY);
+        readyQueue.add(pcb);
+    }
+
+    /* =======================
+       PRIORITY MANAGEMENT
+       ======================= */
+
     public void changePriority(int pid, int newPriority) {
-        PCB pcb = processTable.get(pid);
+        PCB pcb = findByPid(pid);
         if (pcb != null) {
             pcb.setPriority(newPriority);
         }
     }
 
-    // FETCH
-    public Collection<PCB> getAllProcesses() {
-        return processTable.values();
+    /* =======================
+       SCHEDULER CONTROL
+       ======================= */
+
+    public void setScheduler(Scheduler scheduler) {
+        this.scheduler = scheduler;
     }
+
+    public Scheduler getScheduler() {
+        return scheduler;
+    }
+
+    /* =======================
+       GETTERS FOR UI
+       ======================= */
+
+    public List<PCB> getAllProcesses() {
+        return Collections.unmodifiableList(processList);
+    }
+
+    public Queue<PCB> getReadyQueue() {
+        return new LinkedList<>(readyQueue);
+    }
+
+    public Queue<PCB> getBlockedQueue() {
+        return new LinkedList<>(blockedQueue);
+    }
+
+    public Queue<PCB> getSuspendedQueue() {
+        return new LinkedList<>(suspendedQueue);
+    }
+
+    public PCB getRunningProcess() {
+        return runningProcess;
+    }
+
+    /* =======================
+       INTERNAL UTIL
+       ======================= */
+
+    private PCB findByPid(int pid) {
+        for (PCB pcb : processList) {
+            if (pcb.getPid() == pid) {
+                return pcb;
+            }
+        }
+        return null;
+    }
+    // Cpu ticking
+    public void tick() {
+        if (runningProcess == null) {
+            dispatchNextProcess();
+            return;
+        }
+
+        // Simulate CPU execution
+        runningProcess.consumeCpu();
+
+        // Process finished
+        if (runningProcess.getRemainingBurstTime() <= 0) {
+            runningProcess.setState(ProcessState.TERMINATED);
+            runningProcess = null;
+            dispatchNextProcess();
+            return;
+        }
+
+        // Round Robin quantum expiry
+        if (scheduler instanceof RoundRobinScheduler rr) {
+            if (runningProcess.getQuantumCounter() >= rr.getTimeQuantum()) {
+
+                runningProcess.resetQuantum();
+                dispatcher.preempt(runningProcess);
+                readyQueue.add(runningProcess);
+                runningProcess = null;
+
+                dispatchNextProcess();
+            }
+        }
+    }
+
 }
+
+

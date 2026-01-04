@@ -1,11 +1,10 @@
-package kernx.ui;
+package kernx.os.models;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
 
 import kernx.os.data.PCB;
-import kernx.os.data.ProcessState;
 
 public class ProcessTableModel extends AbstractTableModel {
 

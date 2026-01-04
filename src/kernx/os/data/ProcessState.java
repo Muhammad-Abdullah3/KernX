@@ -1,4 +1,10 @@
 package kernx.os.data;
 
-public class ProcessState {
+public enum ProcessState {
+    NEW,
+    READY,
+    RUNNING,
+    BLOCKED,
+    SUSPENDED,
+    TERMINATED
 }
