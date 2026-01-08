@@ -8,6 +8,7 @@ import kernx.os.scheduler.Dispatcher;
 import kernx.os.scheduler.FCFSScheduler;
 import kernx.os.scheduler.RoundRobinScheduler;
 import kernx.os.scheduler.Scheduler;
+import kernx.os.memory.MemoryManager;
 
 public class ProcessManager {
 
@@ -64,8 +65,13 @@ public class ProcessManager {
         
         PCB pcb = new PCB(owner, memoryRequirement, priority, burstTime, absoluteArrival);
         pcb.setState(ProcessState.NEW);
-        processList.add(pcb);
-        notify("Created Process PID: " + pcb.getPid() + " (Arriving at: " + absoluteArrival + ")");
+        
+        if (MemoryManager.getInstance().allocate(pcb)) {
+            processList.add(pcb);
+            notify("Created Process PID: " + pcb.getPid() + " (Arriving at: " + absoluteArrival + ")");
+        } else {
+            notify("Failed to create process: Insufficient Memory");
+        }
     }
 
     /* =======================
@@ -85,6 +91,7 @@ public class ProcessManager {
             dispatchNextProcess();
         }
 
+        MemoryManager.getInstance().deallocate(pcb);
         processList.remove(pcb);
         notify("Destroyed Process PID: " + pid);
     }
@@ -268,6 +275,11 @@ public class ProcessManager {
 
         // Simulate CPU execution
         runningProcess.consumeCpu();
+        if (runningProcess.getPageTable() != null) {
+            for (kernx.os.memory.Page p : runningProcess.getPageTable().getPages()) {
+                p.touch();
+            }
+        }
 
         // Process finished
         if (runningProcess.getRemainingBurstTime() <= 0) {

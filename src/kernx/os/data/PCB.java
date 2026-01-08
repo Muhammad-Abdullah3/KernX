@@ -1,6 +1,7 @@
 package kernx.os.data;
 
 import kernx.utils.IDGenerator;
+import kernx.os.memory.PageTable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class PCB {
 
     // Memory
     private int memoryRequirement;
-    private Object memoryPointer;   // Placeholder (Phase-3)
+    private PageTable pageTable;
 
     // CPU
     private RegisterSet registerSet;
@@ -113,5 +114,13 @@ public class PCB {
 
     public void setCompletionTime(int completionTime) {
         this.completionTime = completionTime;
+    }
+
+    public PageTable getPageTable() {
+        return pageTable;
+    }
+
+    public void setPageTable(PageTable pageTable) {
+        this.pageTable = pageTable;
     }
 }
