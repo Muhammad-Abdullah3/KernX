@@ -9,7 +9,7 @@ import java.util.List;
 import kernx.os.Kernel;
 import kernx.os.data.PCB;
 import kernx.os.models.ProcessTableModel;
-import kernx.ui.utils.UITheme;
+import kernx.ui.prebuilt.UITheme;
 
 public class ProcessTablePanel extends JPanel {
 

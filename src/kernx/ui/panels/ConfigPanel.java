@@ -1,7 +1,7 @@
 package kernx.ui.panels;
 
 import kernx.os.memory.MemoryManager;
-import kernx.ui.utils.UITheme;
+import kernx.ui.prebuilt.UITheme;
 import kernx.utils.ConfigManager;
 
 import javax.swing.*;

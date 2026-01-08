@@ -5,7 +5,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import kernx.os.Kernel;
 import kernx.ui.panels.ProcessTablePanel;
-import kernx.ui.utils.UITheme;
+import kernx.ui.prebuilt.UITheme;
 
 public class DestroyProcessDialog extends JDialog {
 

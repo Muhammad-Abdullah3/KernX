@@ -1,4 +1,4 @@
-package kernx.ui.utils;
+package kernx.ui.prebuilt;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

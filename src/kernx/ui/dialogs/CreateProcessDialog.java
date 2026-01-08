@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import kernx.os.Kernel;
 import kernx.ui.panels.ProcessTablePanel;
-import kernx.ui.utils.UITheme;
+import kernx.ui.prebuilt.UITheme;
 import javax.swing.border.EmptyBorder;
 
 public class CreateProcessDialog extends JDialog {

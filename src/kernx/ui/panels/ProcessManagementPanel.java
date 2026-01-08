@@ -4,8 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import kernx.os.Kernel;
 import kernx.ui.dialogs.*;
-import kernx.ui.utils.Snackbar;
-import kernx.ui.utils.UITheme;
+import kernx.ui.prebuilt.Snackbar;
+import kernx.ui.prebuilt.UITheme;
 import javax.swing.border.EmptyBorder;
 import java.util.List;
 

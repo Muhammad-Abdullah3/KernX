@@ -1,13 +1,12 @@
 package kernx.ui.panels;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.Queue;
 
 import kernx.os.Kernel;
 import kernx.os.data.PCB;
-import kernx.ui.utils.UITheme;
+import kernx.ui.prebuilt.UITheme;
 
 public class QueueVisualizationPanel extends JPanel {
 

@@ -3,7 +3,7 @@ package kernx.ui.dialogs;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import kernx.ui.utils.UITheme;
+import kernx.ui.prebuilt.UITheme;
 
 public class ProcessCommunicationDialog extends JDialog {
 

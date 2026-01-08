@@ -5,7 +5,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import kernx.ui.panels.*;
 
-import kernx.ui.utils.UITheme;
+import kernx.ui.prebuilt.UITheme;
 
 public class MainFrame extends JFrame {
 
