@@ -123,4 +123,8 @@ public class PCB {
     public void setPageTable(PageTable pageTable) {
         this.pageTable = pageTable;
     }
+
+    public IOState getIOState() {
+        return ioState;
+    }
 }

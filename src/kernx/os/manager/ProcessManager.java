@@ -245,6 +245,11 @@ public class ProcessManager {
        INTERNAL UTIL
        ======================= */
 
+
+    public PCB getProcess(int pid) {
+        return findByPid(pid);
+    }
+
     private PCB findByPid(int pid) {
         for (PCB pcb : processList) {
             if (pcb.getPid() == pid) {
