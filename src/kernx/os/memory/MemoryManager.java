@@ -77,19 +77,47 @@ public class MemoryManager {
     }
 
     private MemoryFrame lruReplace() {
-        // Simple LRU: find the page that was touched longest ago
-        // We need to find all allocated pages across all processes
-        // For simulation, we'll iterate through all frames and find the one whose page has the oldest lastReferencedTime
+        // Priority-Based Page Replacement Algorithm
+        // Priority Order (highest to lowest):
+        // 1. RUNNING process - NEVER evict (must always be in memory)
+        // 2. READY queue - FIFO preference (evict from end if needed)
+        // 3. BLOCKED queue - lower priority
+        // 4. SUSPENDED queue - lowest priority (evict first)
+        
+        kernx.os.manager.ProcessManager pm = kernx.os.Kernel.getProcessManager();
+        
+        // Build priority sets
+        java.util.Set<Integer> runningPid = new java.util.HashSet<>();
+        java.util.Set<Integer> readyPids = new java.util.LinkedHashSet<>(); // Preserve order
+        java.util.Set<Integer> blockedPids = new java.util.HashSet<>();
+        java.util.Set<Integer> suspendedPids = new java.util.HashSet<>();
+        
+        // 1. Running process (highest priority - never evict)
+        if (pm.getRunningProcess() != null) {
+            runningPid.add(pm.getRunningProcess().getPid());
+        }
+        
+        // 2. Ready queue (FIFO order - front has higher priority)
+        for (PCB pcb : pm.getReadyQueue()) {
+            readyPids.add(pcb.getPid());
+        }
+        
+        // 3. Blocked queue
+        for (PCB pcb : pm.getBlockedQueue()) {
+            blockedPids.add(pcb.getPid());
+        }
+        
+        // 4. Suspended queue (lowest priority)
+        for (PCB pcb : pm.getSuspendedQueue()) {
+            suspendedPids.add(pcb.getPid());
+        }
         
         MemoryFrame victimFrame = null;
         long oldestTime = Long.MAX_VALUE;
-
-        // Note: In a real OS, we'd have a list of active pages or use a clock algorithm.
-        // Here we'll just check all frames.
+        
+        // PRIORITY 4: Try to evict from SUSPENDED processes first
         for (MemoryFrame frame : frames) {
-            if (!frame.isFree()) {
-                // We need to find the Page object associated with this frame.
-                // This is a bit inefficient here but works for simulation.
+            if (!frame.isFree() && suspendedPids.contains(frame.getOwningPid())) {
                 Page p = findPageByFrame(frame.getFrameNumber());
                 if (p != null && p.getLastReferencedTime() < oldestTime) {
                     oldestTime = p.getLastReferencedTime();
@@ -97,7 +125,48 @@ public class MemoryManager {
                 }
             }
         }
-
+        
+        // PRIORITY 3: If no suspended pages, evict from BLOCKED processes
+        if (victimFrame == null) {
+            oldestTime = Long.MAX_VALUE;
+            for (MemoryFrame frame : frames) {
+                if (!frame.isFree() && blockedPids.contains(frame.getOwningPid())) {
+                    Page p = findPageByFrame(frame.getFrameNumber());
+                    if (p != null && p.getLastReferencedTime() < oldestTime) {
+                        oldestTime = p.getLastReferencedTime();
+                        victimFrame = frame;
+                    }
+                }
+            }
+        }
+        
+        // PRIORITY 2: If still none, evict from READY queue (prefer later processes)
+        // Convert to list to access by position
+        if (victimFrame == null && !readyPids.isEmpty()) {
+            java.util.List<Integer> readyList = new java.util.ArrayList<>(readyPids);
+            
+            // Start from END of ready queue (lower priority processes)
+            for (int i = readyList.size() - 1; i >= 0; i--) {
+                int pid = readyList.get(i);
+                oldestTime = Long.MAX_VALUE;
+                
+                for (MemoryFrame frame : frames) {
+                    if (!frame.isFree() && frame.getOwningPid() == pid) {
+                        Page p = findPageByFrame(frame.getFrameNumber());
+                        if (p != null && p.getLastReferencedTime() < oldestTime) {
+                            oldestTime = p.getLastReferencedTime();
+                            victimFrame = frame;
+                        }
+                    }
+                }
+                
+                if (victimFrame != null) break; // Found victim from this ready process
+            }
+        }
+        
+        // PRIORITY 1: RUNNING process is NEVER evicted (should never reach here)
+        // If we reach here with no victim, memory is critically full
+        
         if (victimFrame != null) {
             // "Swap out" the victim page
             Page victimPage = findPageByFrame(victimFrame.getFrameNumber());

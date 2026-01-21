@@ -60,18 +60,17 @@ public class ProcessManager {
 
     // New overload accepting burst time and arrival time
     public void createProcess(String owner, int memoryRequirement, int priority, int burstTime, int arrivalOffset) {
-        // Arrival time is calculated relative to current systemTime
+        // Lazy Loading: Create process WITHOUT allocating memory
+        // Memory will be allocated on-demand when process transitions to READY/RUNNING
+        
         int absoluteArrival = systemTime + Math.max(0, arrivalOffset);
         
         PCB pcb = new PCB(owner, memoryRequirement, priority, burstTime, absoluteArrival);
         pcb.setState(ProcessState.NEW);
         
-        if (MemoryManager.getInstance().allocate(pcb)) {
-            processList.add(pcb);
-            notify("Created Process PID: " + pcb.getPid() + " (Arriving at: " + absoluteArrival + ")");
-        } else {
-            notify("Failed to create process: Insufficient Memory");
-        }
+        // Always add to process list (no memory check here)
+        processList.add(pcb);
+        notify("Created Process PID: " + pcb.getPid() + " (Arriving at: " + absoluteArrival + ") - Memory will be allocated on demand");
     }
 
     /* =======================
@@ -106,6 +105,18 @@ public class ProcessManager {
 
         PCB next = scheduler.selectNextProcess(readyQueue);
         if (next != null) {
+            // CRITICAL: Ensure memory is allocated before running
+            if (next.getPageTable() == null) {
+                boolean allocated = MemoryManager.getInstance().allocate(next);
+                if (!allocated) {
+                    // If allocation fails, re-add to ready queue and try next process
+                    readyQueue.add(next);
+                    notify("Warning: Could not allocate memory for PID " + next.getPid() + ", trying next process");
+                    dispatchNextProcess(); // Recursive call to try next process
+                    return;
+                }
+            }
+            
             runningProcess = next;
             dispatcher.dispatch(next);
         }
@@ -263,7 +274,27 @@ public class ProcessManager {
             if (pcb.getState() == ProcessState.NEW && pcb.getArrivalTime() <= systemTime) {
                 pcb.setState(ProcessState.READY);
                 readyQueue.add(pcb);
+                
+                // Lazy allocation: Try to allocate memory now that process is ready
+                ensureMemoryForActiveProcesses();
+                
                 notify("Process PID: " + pcb.getPid() + " Arrived at time " + systemTime);
+            }
+        }
+    }
+    
+    // Ensures memory is allocated for active processes in priority order
+    private void ensureMemoryForActiveProcesses() {
+        // Priority 1: Allocate to running process first
+        if (runningProcess != null && runningProcess.getPageTable() == null) {
+            MemoryManager.getInstance().allocate(runningProcess);
+        }
+        
+        // Priority 2: Allocate to ready queue processes (FIFO order)
+        for (PCB pcb : readyQueue) {
+            if (pcb.getPageTable() == null) {
+                // Try to allocate, if it fails, that's okay - will try again later
+                MemoryManager.getInstance().allocate(pcb);
             }
         }
     }
@@ -272,6 +303,9 @@ public class ProcessManager {
     public void tick() {
         systemTime++;
         checkArrivals();
+        
+        // Continuously try to allocate memory to active processes
+        ensureMemoryForActiveProcesses();
 
         if (runningProcess == null) {
             dispatchNextProcess();
