@@ -19,15 +19,12 @@ public class IPCManager {
 
     public void sendMessage(Message msg) {
         messageQueues.computeIfAbsent(msg.getReceiverPid(), k -> new LinkedList<>()).add(msg);
-        kernx.os.Kernel.getProcessManager().notify("[IPC] Message sent from PID=" + msg.getSenderPid() + " to PID=" + msg.getReceiverPid() + ": \"" + msg.getContent() + "\"");
     }
 
     public Message receiveMessage(int receiverPid) {
         Queue<Message> q = messageQueues.get(receiverPid);
         if (q != null && !q.isEmpty()) {
-            Message msg = q.poll();
-            kernx.os.Kernel.getProcessManager().notify("[IPC] PID=" + receiverPid + " received message from PID=" + msg.getSenderPid() + ": \"" + msg.getContent() + "\"");
-            return msg;
+            return q.poll();
         }
         return null;
     }

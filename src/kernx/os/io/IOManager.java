@@ -41,12 +41,9 @@ public class IOManager {
                     if (pcb != null) {
                         pcb.getIOState().setWaitingForIO(true);
                         pcb.getIOState().setDeviceName(deviceName);
-                        Kernel.getProcessManager().notify("[I/O] PID=" + pid + " requested device '" + deviceName + "' - Device allocated, process blocked");
                         Kernel.getProcessManager().blockProcess(pid); // Block process when it starts I/O
                     }
                     return true;
-                } else {
-                    Kernel.getProcessManager().notify("[I/O] PID=" + pid + " requested device '" + deviceName + "' - Device busy");
                 }
             }
         }
@@ -62,7 +59,6 @@ public class IOManager {
                 if (pcb != null) {
                     pcb.getIOState().setWaitingForIO(false);
                     pcb.getIOState().setDeviceName("NONE");
-                    Kernel.getProcessManager().notify("[I/O] PID=" + pid + " released device '" + deviceName + "' - Process unblocked");
                     Kernel.getProcessManager().wakeupProcess(pid); // Wakeup when I/O finished
                 }
                 return;

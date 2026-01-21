@@ -23,11 +23,8 @@ public class Semaphore {
         if (value < 0) {
             waitingQueue.add(pcb);
             pcb.setState(ProcessState.BLOCKED);
-            kernx.os.Kernel.getProcessManager().notify("[SEMAPHORE] PID=" + pcb.getPid() + " waiting on '" + name + "' (value=" + value + ") - Process blocked");
             // The kernel/dispatcher must handle the actual removing from ready queue context switch
             // But state change flags it.
-        } else {
-            kernx.os.Kernel.getProcessManager().notify("[SEMAPHORE] PID=" + pcb.getPid() + " acquired '" + name + "' (value=" + value + ")");
         }
     }
 
@@ -37,11 +34,8 @@ public class Semaphore {
             if (!waitingQueue.isEmpty()) {
                 PCB aroused = waitingQueue.poll();
                 aroused.setState(ProcessState.READY);
-                kernx.os.Kernel.getProcessManager().notify("[SEMAPHORE] Signal on '" + name + "' (value=" + value + ") - PID=" + aroused.getPid() + " woken up");
                 return aroused;
             }
-        } else {
-            kernx.os.Kernel.getProcessManager().notify("[SEMAPHORE] Signal on '" + name + "' (value=" + value + ")");
         }
         return null;
     }
