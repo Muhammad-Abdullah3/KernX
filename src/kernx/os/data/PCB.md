@@ -1,19 +1,7 @@
 # PCB.java (Process Control Block) Documentation
 
 ## Flowchart
-
-```mermaid
-graph TD
-    A[New PCB] --> B[Assign PID & Owner]
-    B --> C[Set State = NEW]
-    C --> D[Initialize Burst & Arrival]
-    D --> E[Initialize Memory Requirements]
-    
-    F[Lifecycle] --> G{Action?}
-    G -- Run --> H[Consume CPU (dec burst)]
-    G -- Wait --> I[State = READY/BLOCKED]
-    G -- Finish --> J[State = TERMINATED]
-```
+![img_1.png](img_1.png)
 
 ## Line-by-Line Explanation
 

@@ -2,29 +2,7 @@
 
 ## Flowchart
 
-```mermaid
-graph TD
-    A[Start: tick] --> B{Inc System Time}
-    B --> C[Check Arrivals]
-    C --> D{Is Queue Empty?}
-    D -- Yes --> E[Wait]
-    D -- No --> F{Is RunningProcess Null?}
-    F -- Yes --> G[DispatchNextProcess]
-    G --> H[Scheduler.selectNextProcess]
-    H --> I[Set RunningProcess]
-    I --> J[Dispatcher.dispatch]
-    F -- No --> K[runningProcess.consumeCpu]
-    K --> L{Burst Time <= 0?}
-    L -- Yes --> M[Terminate Process (State=TERMINATED)]
-    M --> N[Notify Listeners]
-    N --> G
-    L -- No --> O{Round Robin & Quantum Expired?}
-    O -- Yes --> P[Preempt Process]
-    P --> Q[Add to Ready Queue]
-    Q --> G
-    O -- No --> R[Continue]
-```
-
+![img.png](img.png)
 ## Line-by-Line Explanation
 
 | Line | Code Snippet | Explanation |

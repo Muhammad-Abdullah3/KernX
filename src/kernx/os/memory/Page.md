@@ -1,19 +1,7 @@
 # Page.java Documentation
 
 ## Flowchart
-
-```mermaid
-graph TD
-    A[Page Created] --> B[Page Number Set]
-    B --> C[Frame = -1 (Not in RAM)]
-    
-    D[Page Fault / Load] --> E[Assign Frame Number]
-    E --> F[Set Present = true]
-    F --> G[Update Timestamp (Touch)]
-    
-    H[Eviction / Swap Out] --> I[Set Frame = -1]
-    I --> J[Set Present = false]
-```
+![img_1.png](img_1.png)
 
 ## Line-by-Line Explanation
 

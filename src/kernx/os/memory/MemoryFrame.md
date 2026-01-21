@@ -2,18 +2,7 @@
 
 ## Flowchart
 
-```mermaid
-graph TD
-    A[Frame Initialization] --> B[Set Frame ID]
-    B --> C[Set Free = true]
-    
-    D[Allocation] --> E[Set Free = false]
-    E --> F[Assign Owner PID]
-    F --> G[Assign Page Number]
-    
-    H[Deallocation] --> I[Set Free = true]
-    I --> J[Clear PID & Page Number]
-```
+![img_3.png](img_3.png)
 
 ## Line-by-Line Explanation
 

@@ -1,20 +1,7 @@
 # Message.java Documentation
 
 ## Flowchart
-
-```mermaid
-classDiagram
-    class Message {
-        -int senderPid
-        -int receiverPid
-        -String content
-        -long timestamp
-        +getSenderPid()
-        +getReceiverPid()
-        +getContent()
-        +toString()
-    }
-```
+![img_1.png](img_1.png)
 
 ## Line-by-Line Explanation
 

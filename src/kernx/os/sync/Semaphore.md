@@ -2,20 +2,7 @@
 
 ## Flowchart
 
-```mermaid
-graph TD
-    A[wait] --> B[Value--]
-    B --> C{Value < 0?}
-    C -->|Yes| D[Add to Queue]
-    D --> E[Block Process]
-    C -->|No| F[Proceed]
-    G[signal] --> H[Value++]
-    H --> I{Value <= 0?}
-    I -->|Yes| J[Poll Queue]
-    J --> K[Wakeup Process]
-    I -->|No| L[Finish]
-```
-
+![img.png](img.png)
 ## Line-by-Line Explanation
 
 | Line | Code Snippet | Explanation |

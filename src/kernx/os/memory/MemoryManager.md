@@ -1,23 +1,7 @@
 # MemoryManager.java Documentation
 
 ## Flowchart
-
-```mermaid
-graph TD
-    A[Start: allocate(PCB)] --> B[Calculate NumPages Needed]
-    B --> C[Create PageTable]
-    C --> D{For Each Page}
-    D --> E[findFreeFrame]
-    E --> F{Is Frame Free?}
-    F -- Yes --> G[Assign Frame to Page]
-    F -- No --> H[lruReplace]
-    H --> I[Find Victim Frame (LRU)]
-    I --> J[Evict Victim Page]
-    J --> G
-    G --> K{More Pages?}
-    K -- Yes --> D
-    K -- No --> L[Return True]
-```
+![img_2.png](img_2.png)
 
 ## Line-by-Line Explanation
 

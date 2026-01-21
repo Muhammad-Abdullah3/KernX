@@ -2,16 +2,7 @@
 
 ## Flowchart
 
-```mermaid
-graph TD
-    A[Context Switch Out] --> B[Save State]
-    B --> C[Generate Random values for AX, BX...]
-    C --> D[Store in RegisterSet]
-    
-    E[Context Switch In] --> F[Restore State]
-    F --> G[Log current register values]
-```
-
+![img_3.png](img_3.png)
 ## Line-by-Line Explanation
 
 | Line | Code Snippet | Explanation |

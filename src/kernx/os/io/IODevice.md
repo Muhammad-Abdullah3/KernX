@@ -1,13 +1,7 @@
 # IODevice.java Documentation
 
 ## Flowchart
-
-```mermaid
-stateDiagram-v2
-    [*] --> FREE
-    FREE --> BUSY : allocate(pid)
-    BUSY --> FREE : release()
-```
+![img.png](img.png)
 
 ## Line-by-Line Explanation
 

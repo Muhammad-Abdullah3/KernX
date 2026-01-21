@@ -1,18 +1,7 @@
 # MainFrame.java Documentation
 
 ## Flowchart
-
-```mermaid
-graph TD
-    A[Launch Application] --> B[Apply UI Theme]
-    B --> C[Show Main Menu]
-    C --> D{Click Menu Button}
-    D -->|Process Mgmt| E[Open ProcessManagementPanel]
-    D -->|Memory Mgmt| F[Open MemoryManagementPanel]
-    D -->|I/O Mgmt| G[Open IOManagementPanel]
-    D -->|Other Ops| H[Open OtherOperationsPanel]
-    D -->|Config| I[Open ConfigPanel]
-```
+![img.png](img.png)
 
 ## Line-by-Line Explanation
 

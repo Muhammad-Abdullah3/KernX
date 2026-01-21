@@ -2,19 +2,7 @@
 
 ## Flowchart
 
-```mermaid
-graph TD
-    A[Start] --> B{Request Component}
-    B -->|ProcessManager| C[Get Instance]
-    B -->|IPCManager| D[Get Instance]
-    B -->|SyncManager| E[Get Instance]
-    B -->|IOManager| F[Get Instance]
-    C --> G[Return Object]
-    D --> G
-    E --> G
-    F --> G
-```
-
+![img.png](img.png)
 ## Line-by-Line Explanation
 
 | Line | Code Snippet | Explanation |

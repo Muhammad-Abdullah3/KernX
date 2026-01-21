@@ -2,17 +2,7 @@
 
 ## Flowchart
 
-```mermaid
-graph TD
-    A[Process Creation] --> B[Calculate Required Pages]
-    B --> C[Initialize PageTable]
-    C --> D[Loop 0 to N]
-    D --> E[Create Page(i)]
-    E --> F[Add to List]
-    
-    G[Memory Access] --> H[Get Page(i)]
-    H --> I[Return Page Object]
-```
+![img.png](img.png)
 
 ## Line-by-Line Explanation
 

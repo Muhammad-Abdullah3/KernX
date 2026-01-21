@@ -2,17 +2,7 @@
 
 ## Flowchart
 
-```mermaid
-graph TD
-    A[Request Device] --> B{Device Exist?}
-    B -->|No| C[Return False]
-    B -->|Yes| D{Is Busy?}
-    D -->|Yes| C
-    D -->|No| E[Allocate Device]
-    E --> F[Block Process]
-    F --> G[Return True]
-```
-
+![img_1.png](img_1.png)
 ## Line-by-Line Explanation
 
 | Line | Code Snippet | Explanation |

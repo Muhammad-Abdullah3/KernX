@@ -2,20 +2,7 @@
 
 ## Flowchart
 
-```mermaid
-graph TD
-    A[showMessage] --> B[Set Alpha = 0.0]
-    B --> C[Set Visible = True]
-    C --> D[Start fadeTimer]
-    D --> E{Showing?}
-    E -- Yes --> F[Alpha += 0.1]
-    F --> G{Alpha >= 1.0?}
-    G -- Yes --> H[Start Hide Timer (2.5s)]
-    H --> I[Showing = False]
-    I --> J[Alpha -= 0.1]
-    J --> K{Alpha <= 0.0?}
-    K -- Yes --> L[Visible = False]
-```
+![img.png](img.png)
 
 ## Line-by-Line Explanation
 

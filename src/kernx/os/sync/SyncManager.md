@@ -2,14 +2,7 @@
 
 ## Flowchart
 
-```mermaid
-graph TD
-    A[createSemaphore] --> B[Generate ID]
-    B --> C[New Semaphore]
-    C --> D[Add to Map]
-    D --> E[Return Semaphore]
-```
-
+![img_1.png](img_1.png)
 ## Line-by-Line Explanation
 
 | Line | Code Snippet | Explanation |

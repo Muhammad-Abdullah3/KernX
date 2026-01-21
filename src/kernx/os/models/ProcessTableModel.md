@@ -1,20 +1,7 @@
 # ProcessTableModel.java Documentation
 
 ## Flowchart
-
-```mermaid
-graph TD
-    A[UI Refresh Request] --> B[getValueAt(row, col)]
-    B --> C{Col Index?}
-    C -- 0 --> D[Return Selection Box]
-    C -- 1 --> E[Return PID]
-    C -- 3 --> F[Return State]
-    C -- 7 --> G[Return Remaining Burst]
-    
-    H[User Clicks Checkbox] --> I[setValueAt(true, row, 0)]
-    I --> J[Add PID to Selection Set]
-    J --> K[Fire Table Event]
-```
+![img.png](img.png)
 
 ## Line-by-Line Explanation
 

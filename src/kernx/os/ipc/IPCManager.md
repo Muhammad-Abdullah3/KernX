@@ -2,14 +2,7 @@
 
 ## Flowchart
 
-```mermaid
-graph LR
-    A[Sender] --> B[sendMessage]
-    B --> C[(Message Queues)]
-    C --> D[receiveMessage]
-    D --> E[Receiver]
-```
-
+![img.png](img.png)
 ## Line-by-Line Explanation
 
 | Line | Code Snippet | Explanation |

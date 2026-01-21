@@ -2,7 +2,7 @@
 
 ## Flowchart
 
-```mermaid
+![img_1.png](img_1.png)```mermaid
 graph TD
     A[Launch] --> B[applyGlobalTheme]
     B --> C[Set UIManager Backgrounds]

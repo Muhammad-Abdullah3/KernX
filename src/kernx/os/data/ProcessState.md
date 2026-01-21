@@ -2,20 +2,7 @@
 
 ## Diagram
 
-```mermaid
-stateDiagram-v2
-    [*] --> NEW
-    NEW --> READY : Admitted
-    READY --> RUNNING : Dispatch
-    RUNNING --> READY : Preempt (Time Quantum)
-    RUNNING --> BLOCKED : I/O Request
-    BLOCKED --> READY : I/O Complete
-    READY --> SUSPENDED : Suspend
-    SUSPENDED --> READY : Resume
-    RUNNING --> TERMINATED : Finished
-    TERMINATED --> [*]
-```
-
+![img_2.png](img_2.png)
 ## Explanation
 
 | Enum Value | Meaning |

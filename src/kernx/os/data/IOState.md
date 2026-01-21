@@ -1,18 +1,7 @@
 # IOState.java Documentation
 
 ## Flowchart
-
-```mermaid
-graph TD
-    A[Initialization] --> B[waitingForIO = false]
-    B --> C[deviceName = NONE]
-    
-    D[Start I/O] --> E[waitingForIO = true]
-    E --> F[Set deviceName]
-    
-    G[Finish I/O] --> H[waitingForIO = false]
-    H --> I[deviceName = NONE]
-```
+![img.png](img.png)
 
 ## Line-by-Line Explanation
 
