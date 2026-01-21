@@ -53,20 +53,26 @@ public class MemoryManager {
                 return false; // Should not happen with LRU unless no frames exist
             }
         }
+        
+        kernx.os.Kernel.getProcessManager().notify("[MEMORY] Allocated " + numPages + " page(s) (" + reqMemory + " KB) for PID=" + pcb.getPid());
         return true;
     }
 
     public void deallocate(PCB pcb) {
         if (pcb.getPageTable() == null) return;
         
+        int pageCount = 0;
         for (Page page : pcb.getPageTable().getPages()) {
             if (page.isPresent()) {
                 MemoryFrame frame = frames.get(page.getFrameNumber());
                 frame.setFree(true);
                 page.setFrameNumber(-1);
+                pageCount++;
             }
         }
         pcb.setPageTable(null);
+        
+        kernx.os.Kernel.getProcessManager().notify("[MEMORY] Deallocated " + pageCount + " page(s) from PID=" + pcb.getPid());
     }
 
     private MemoryFrame findFreeFrame() {
@@ -102,7 +108,9 @@ public class MemoryManager {
             // "Swap out" the victim page
             Page victimPage = findPageByFrame(victimFrame.getFrameNumber());
             if (victimPage != null) {
+                int victimPid = victimFrame.getOwningPid();
                 victimPage.setFrameNumber(-1);
+                kernx.os.Kernel.getProcessManager().notify("[MEMORY] LRU Replacement: Evicted frame #" + victimFrame.getFrameNumber() + " from PID=" + victimPid);
             }
             victimFrame.setFree(true);
         }

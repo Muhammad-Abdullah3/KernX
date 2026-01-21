@@ -25,6 +25,7 @@ public class SyncManager {
         int id = semaphoreCounter++;
         Semaphore sem = new Semaphore(id, name, initialValue);
         semaphores.put(id, sem);
+        kernx.os.Kernel.getProcessManager().notify("[SEMAPHORE] Created semaphore '" + name + "' (ID=" + id + ", initial value=" + initialValue + ")");
         return sem;
     }
 

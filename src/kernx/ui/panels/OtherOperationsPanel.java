@@ -36,7 +36,7 @@ public class OtherOperationsPanel extends JPanel {
         // 2. Logs Panel
         JPanel logsPanel = new JPanel(new BorderLayout());
         logsPanel.setOpaque(false);
-        logsPanel.setBorder(BorderFactory.createTitledBorder("System Logs"));
+        logsPanel.setBorder(BorderFactory.createTitledBorder("System Activity Logs"));
 
         logArea = new JTextArea();
         logArea.setEditable(false);
@@ -44,19 +44,10 @@ public class OtherOperationsPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(logArea);
         logsPanel.add(scrollPane, BorderLayout.CENTER);
 
-        // 3. About Panel
-        JPanel aboutPanel = new JPanel(new BorderLayout());
-        aboutPanel.setOpaque(false);
-        aboutPanel.setBorder(BorderFactory.createTitledBorder("About KernX"));
-        JLabel aboutText = new JLabel("<html><center>KernX OS Simulation<br>Phase 1-4 Complete<br>Developed for Operating Systems Course</center></html>", SwingConstants.CENTER);
-        aboutPanel.add(aboutText, BorderLayout.CENTER);
-
-
         // Assembly
         JPanel topContainer = new JPanel(new BorderLayout(10, 10));
         topContainer.setOpaque(false);
         topContainer.add(statsPanel, BorderLayout.CENTER);
-        topContainer.add(aboutPanel, BorderLayout.EAST);
 
         add(topContainer, BorderLayout.NORTH);
         add(logsPanel, BorderLayout.CENTER);
